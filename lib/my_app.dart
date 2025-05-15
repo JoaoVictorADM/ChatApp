@@ -1,4 +1,4 @@
-import 'package:chatpp/controller/auth_screen_controller.dart';
+import 'package:chatpp/controller/auth_gate.dart';
 import 'package:flutter/material.dart';
 
 class MyApp extends StatelessWidget {
@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: AuthScreenController(),
+      home: const AuthGate(),
     );
   }
 }

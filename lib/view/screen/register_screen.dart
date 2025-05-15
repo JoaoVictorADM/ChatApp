@@ -1,3 +1,4 @@
+import 'package:chatpp/controller/auth_controller.dart';
 import 'package:flutter/material.dart';
 import '../widget/password_field_widget.dart';
 
@@ -12,6 +13,18 @@ class RegisterScreen extends StatelessWidget {
       TextEditingController();
 
   final void Function() toggleScreen;
+
+  void register(BuildContext context) async {
+    final auth = AuthController();
+    try {
+      await auth.register(_emailController.text, _passwordController.text);
+    } on Exception catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(title: Text(e.toString())),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +96,9 @@ class RegisterScreen extends StatelessWidget {
                           if (value == null || value.isEmpty) {
                             return 'A senha é obrigatória';
                           }
+                          if (value.length < 6) {
+                            return 'A senha deve ter pelo menos 6 caracteres';
+                          }
                           return null;
                         },
                       ),
@@ -94,6 +110,9 @@ class RegisterScreen extends StatelessWidget {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'A confirmação de senha é obrigatória';
+                          }
+                          if (value.length < 6) {
+                            return 'A confirmação deve ter pelo menos 6 caracteres';
                           }
                           if (value != _passwordController.text) {
                             return 'As senhas não coincidem';
@@ -113,8 +132,11 @@ class RegisterScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          onPressed:
-                              _submit, // Chama a função para validar e enviar
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              register(context);
+                            }
+                          }, // Chama a função para validar e enviar
                           child: const Text(
                             "Criar Conta",
                             style: TextStyle(
@@ -157,13 +179,5 @@ class RegisterScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      debugPrint('Email: ${_emailController.text}');
-      debugPrint('Senha: ${_passwordController.text}');
-      debugPrint('Confirmação Senha: ${_confirmPasswordController.text}');
-    }
   }
 }

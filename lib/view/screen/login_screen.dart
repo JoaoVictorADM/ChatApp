@@ -1,3 +1,4 @@
+import 'package:chatpp/controller/auth_controller.dart';
 import 'package:flutter/material.dart';
 import '../widget/password_field_widget.dart';
 
@@ -10,6 +11,22 @@ class LoginScreen extends StatelessWidget {
   final TextEditingController _passwordController = TextEditingController();
 
   final void Function() toggleScreen;
+
+  void login(BuildContext context) async {
+    final AuthController authController = AuthController();
+
+    try {
+      await authController.login(
+        _emailController.text,
+        _passwordController.text,
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(title: Text(e.toString())),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +139,11 @@ class LoginScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          onPressed: _submit,
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              login(context);
+                            }
+                          },
                           child: const Text(
                             "Entrar",
                             style: TextStyle(
@@ -142,9 +163,5 @@ class LoginScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _submit() {
-    if (_formKey.currentState!.validate()) {}
   }
 }
