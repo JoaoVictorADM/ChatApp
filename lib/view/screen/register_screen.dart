@@ -7,6 +7,7 @@ class RegisterScreen extends StatelessWidget {
 
   final _formKey = GlobalKey<FormState>();
 
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -17,7 +18,11 @@ class RegisterScreen extends StatelessWidget {
   void register(BuildContext context) async {
     final auth = AuthController();
     try {
-      await auth.register(_emailController.text, _passwordController.text);
+      await auth.register(
+        _nameController.text,
+        _emailController.text,
+        _passwordController.text,
+      );
     } on Exception catch (e) {
       showDialog(
         context: context,
@@ -64,6 +69,26 @@ class RegisterScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Column(
                     children: [
+                      // Campo de Nome
+                      TextFormField(
+                        controller: _nameController, // Associando o controlador
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          prefixIcon: const Icon(Icons.person),
+                          hintText: 'Nome',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'O nome é obrigatório';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 15),
                       // Campo de Email
                       TextFormField(
                         controller: _emailController,

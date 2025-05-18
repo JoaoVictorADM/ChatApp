@@ -1,10 +1,10 @@
-class User {
+class AppUser {
   final String id;
-  String email;
-  String name;
-  String? profileImageUrl;
+  final String email;
+  final String? name;
+  final String? profileImageUrl;
 
-  User({
+  AppUser({
     required this.id,
     required this.email,
     required this.name,

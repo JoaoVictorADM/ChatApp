@@ -1,31 +1,85 @@
 // chat_controller.dart
+import 'package:chatpp/controller/auth_controller.dart';
+import 'package:chatpp/model/message.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/chat.dart';
-import '../model/message.dart';
-import '../repository/chat_repository.dart';
-import '../repository/message_repository.dart';
 
 class ChatController {
-  final ChatRepository chatRepository;
-  final MessageRepository messageRepository;
+  final _firestore = FirebaseFirestore.instance;
+  final _auth = AuthController();
 
-  ChatController({
-    required this.chatRepository,
-    required this.messageRepository,
-  });
+  Stream<List<Chat>> getUserChatsStream() {
+    final userId = _auth.getCurrentUser()?.uid;
+    if (userId == null) return const Stream.empty();
 
-  Future<List<Chat>> getUserChats(String userId) {
-    return chatRepository.getChats(userId);
+    final query =
+        _firestore
+            .collection('Chats')
+            .where(
+              Filter.or(
+                Filter('user1Id', isEqualTo: userId),
+                Filter('user2Id', isEqualTo: userId),
+              ),
+            )
+            .snapshots();
+
+    return query.map(
+      (snapshot) => snapshot.docs.map((doc) => Chat.fromDoc(doc)).toList(),
+    );
   }
 
-  Future<Chat> createChat(String user1Id, String user2Id) {
-    return chatRepository.createChat(user1Id, user2Id);
-  }
+  Future<void> sendMessage({
+    required String receiverId,
+    required String messageText,
+  }) async {
+    final chatsCollection = FirebaseFirestore.instance.collection('Chats');
 
-  Future<List<Message>> getChatMessages(String chatId) {
-    return messageRepository.getMessages(chatId);
-  }
+    //Procurar chat existente entre os dois usuários (ordem pode variar)
+    final querySnapshot =
+        await chatsCollection
+            .where(
+              'user1Id',
+              whereIn: [_auth.getCurrentUser()?.uid, receiverId],
+            )
+            .where(
+              'user2Id',
+              whereIn: [_auth.getCurrentUser()?.uid, receiverId],
+            )
+            .get();
 
-  Future<Message> sendMessage(String chatId, String senderId, String text) {
-    return messageRepository.sendMessage(chatId, senderId, text);
+    DocumentReference? chatDocRef;
+
+    if (querySnapshot.docs.isNotEmpty) {
+      //Se o chat já existe pegamos a referência dele
+      chatDocRef = querySnapshot.docs.first.reference;
+    } else {
+      //Criar novo chat (chat ainda não existe)
+      chatDocRef = await chatsCollection.add({
+        'user1Id': _auth.getCurrentUser()?.uid,
+        'user2Id': receiverId,
+        'lastMessage': null,
+      });
+    }
+
+    //Criar a mensagem dentro da subcoleção 'messages' do chat
+    Message message = Message(
+      id: '',
+      senderId: _auth.getCurrentUser()?.uid ?? '',
+      text: messageText,
+      timestamp: DateTime.now(),
+    );
+
+    final messagesCollection = chatDocRef.collection('messages');
+    /*final newMessageDoc = */
+    await messagesCollection.add(message.toMap());
+
+    //Atualizar o campo lastMessage no documento do chat
+    await chatDocRef.update({
+      'lastMessage': {
+        'senderId': _auth.getCurrentUser()?.uid,
+        'text': messageText,
+        'timestamp': DateTime.now(),
+      },
+    });
   }
 }
