@@ -49,6 +49,8 @@ class ChatController {
 
     DocumentReference? chatDocRef;
 
+    //Verificar se o usuário que vai receber a mensagem existe
+
     if (querySnapshot.docs.isNotEmpty) {
       //Se o chat já existe pegamos a referência dele
       chatDocRef = querySnapshot.docs.first.reference;

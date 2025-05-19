@@ -11,7 +11,7 @@ class Chat {
     required this.id,
     required this.user1Id,
     required this.user2Id,
-    this.lastMessage,
+    required this.lastMessage,
   });
 
   factory Chat.fromDoc(DocumentSnapshot doc) {

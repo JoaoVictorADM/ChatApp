@@ -1,5 +1,5 @@
 import 'package:chatpp/controller/auth_screen_controller.dart';
-import 'package:chatpp/view/screen/home_screen.dart';
+import '../view/screen/chat_list_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +13,7 @@ class AuthGate extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return const HomeScreen();
+            return ChatListScreen();
           } else {
             return AuthScreenController();
           }
