@@ -33,8 +33,8 @@ class ContactCard extends StatelessWidget {
             ? "Você: $messageText"
             : messageText;
 
-    return FutureBuilder<AppUser>(
-      future: _userController.getUserById(
+    return StreamBuilder<AppUser>(
+      stream: _userController.getUserById(
         userId,
       ), // adapte conforme seu controller
       builder: (context, snapshot) {

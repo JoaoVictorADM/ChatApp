@@ -1,4 +1,3 @@
-// chat_controller.dart
 import 'package:chatpp/controller/auth_controller.dart';
 import 'package:chatpp/model/message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
