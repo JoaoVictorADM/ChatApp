@@ -7,6 +7,25 @@ class UserController {
   final _firestore = FirebaseFirestore.instance;
   final _authController = AuthController();
 
+  Future<String> getUserIdByEmail(String email) async {
+    try {
+      final querySnapshot =
+          await _firestore
+              .collection('Users')
+              .where('email', isEqualTo: email)
+              .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception("Usuário não encontrado");
+      }
+
+      return querySnapshot.docs.first.id;
+    } catch (e) {
+      debugPrint("Erro ao buscar usuário por email: $e");
+      throw Exception("Erro ao buscar usuário por email: $e");
+    }
+  }
+
   Stream<AppUser> getUserById(String userId) {
     return _firestore.collection('Users').doc(userId).snapshots().map((doc) {
       if (!doc.exists || doc.data() == null) {

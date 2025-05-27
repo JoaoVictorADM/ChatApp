@@ -4,6 +4,7 @@ import '../../controller/chat_controller.dart';
 import '../../controller/auth_controller.dart';
 import '../widget/contact_card.dart';
 import '../widget/my_drawer.dart';
+import '../widget/add_contact_dialog.dart';
 
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
@@ -15,14 +16,6 @@ class ChatListScreen extends StatefulWidget {
 class _ChatListScreenState extends State<ChatListScreen> {
   final ChatController _chatController = ChatController();
   final AuthController _auth = AuthController();
-
-  void _send() {
-    ChatController chatController = ChatController();
-    chatController.sendMessage(
-      receiverId: "DYtRTqKELINofjYNLiq8ivVBsP12",
-      messageText: "Tralalero",
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,13 +36,20 @@ class _ChatListScreenState extends State<ChatListScreen> {
           ),
         ),
         actions: <Widget>[
-          TextButton(onPressed: _send, child: Text("Enviar mensagem")),
           IconButton(
             icon: const CircleAvatar(
               backgroundColor: Colors.white,
               child: Icon(Icons.person_add, color: Colors.blue),
             ),
-            onPressed: () => {},
+            onPressed: () {
+              // Abre o bloco de função
+              showDialog(
+                context: context,
+                builder: (BuildContext dialogContext) {
+                  return const AddContactDialog();
+                },
+              );
+            },
           ),
         ],
         bottom: PreferredSize(
@@ -98,6 +98,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   chat.user1Id == currentUserId ? chat.user2Id : chat.user1Id;
 
               return ContactCard(
+                chatId: chat.id,
                 userId: otherUserId,
                 lastMessage: chat.lastMessage,
               );

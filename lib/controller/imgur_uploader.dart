@@ -30,7 +30,6 @@ class ImgurUploader {
     final responseBody = await http.Response.fromStream(response);
 
     if (response.statusCode == 200) {
-      debugPrint('deu certo fi: ${responseBody.body}');
       final data = jsonDecode(responseBody.body);
       return data['data']['link'];
     } else {

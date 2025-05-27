@@ -1,4 +1,5 @@
 import 'package:chatpp/controller/auth_controller.dart';
+import 'package:chatpp/view/screen/chat_screen.dart';
 import 'package:flutter/material.dart';
 import '../../model/app_user.dart';
 import '../../controller/user_controller.dart';
@@ -6,9 +7,15 @@ import './../../model/message.dart';
 
 class ContactCard extends StatelessWidget {
   final String userId;
+  final String chatId;
   final Message? lastMessage;
 
-  ContactCard({super.key, required this.userId, required this.lastMessage});
+  ContactCard({
+    super.key,
+    required this.chatId,
+    required this.userId,
+    required this.lastMessage,
+  });
 
   final UserController _userController = UserController();
   final AuthController _authController = AuthController();
@@ -34,9 +41,7 @@ class ContactCard extends StatelessWidget {
             : messageText;
 
     return StreamBuilder<AppUser>(
-      stream: _userController.getUserById(
-        userId,
-      ), // adapte conforme seu controller
+      stream: _userController.getUserById(userId),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const ListTile(title: Text("Carregando..."));
@@ -79,7 +84,16 @@ class ContactCard extends StatelessWidget {
                   : '',
               style: const TextStyle(color: Colors.white60, fontSize: 12),
             ),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) =>
+                          ChatScreen(chatId: chatId, receiverId: userId),
+                ),
+              );
+            },
           ),
         );
       },

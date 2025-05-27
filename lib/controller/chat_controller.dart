@@ -27,6 +27,24 @@ class ChatController {
     );
   }
 
+  Future<String> getChatId(String receiverId) async {
+    final user = _auth.getCurrentUser();
+    if (user == null) return '';
+
+    final querySnapshot =
+        await _firestore
+            .collection('Chats')
+            .where('user1Id', whereIn: [user.uid, receiverId])
+            .where('user2Id', whereIn: [user.uid, receiverId])
+            .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      return querySnapshot.docs.first.id;
+    } else {
+      return '';
+    }
+  }
+
   Future<void> sendMessage({
     required String receiverId,
     required String messageText,
@@ -51,7 +69,6 @@ class ChatController {
     //Verificar se o usuário que vai receber a mensagem existe
 
     if (querySnapshot.docs.isNotEmpty) {
-      //Se o chat já existe pegamos a referência dele
       chatDocRef = querySnapshot.docs.first.reference;
     } else {
       //Criar novo chat (chat ainda não existe)
@@ -82,5 +99,28 @@ class ChatController {
         'timestamp': DateTime.now(),
       },
     });
+  }
+
+  Stream<List<Message>> getMessagesFromChat(String chatId) {
+    if (chatId.isEmpty) {
+      return const Stream.empty(); // retorna uma stream vazia
+    }
+
+    return _firestore
+        .collection('Chats')
+        .doc(chatId)
+        .collection('messages')
+        .orderBy(
+          'timestamp',
+        ) // Ordena por timestamp (do mais antigo para o mais novo)
+        .orderBy(
+          'senderId',
+        ) // Em caso de empate no timestamp, ordena pelo ID do remetente
+        .snapshots()
+        .map((querySnapshot) {
+          return querySnapshot.docs
+              .map((doc) => Message.fromMap(doc.data()))
+              .toList();
+        });
   }
 }
